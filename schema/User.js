@@ -7,13 +7,24 @@ const UserSchema = gql`
 		password: String!
 	}
 
+	type Error {
+		path: String!
+		message: String!
+	}
+
 	type createUserResponse {
 		ok: Boolean!
+		error: Error
 	}
 
 	type getUserResponse {
 		user: User
 		ok: Boolean!
+	}
+
+	type LoginResponse {
+		ok: Boolean!
+		error: Error
 	}
 
 	type Query {
@@ -27,6 +38,7 @@ const UserSchema = gql`
 			username: String!
 			password: String!
 		): createUserResponse!
+		login(usernameOrEmail: String!, password: String!): LoginResponse!
 	}
 `;
 

@@ -9,7 +9,7 @@ const server = new ApolloServer({
 	context: () => ({ models, sequelize }),
 });
 const PORT = 4000;
-sequelize.sync({ force: true }).then(() => {
+sequelize.sync().then(() => {
 	server.listen({ port: PORT }).then(({ url }) => {
 		console.log(`🚀  Server ready at ${url}`);
 	});
