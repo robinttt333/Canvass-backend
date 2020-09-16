@@ -5,11 +5,24 @@ import formatErrors from "../formatError";
 const UserResolvers = {
 	Query: {},
 	Mutation: {
-		createUser: async (_, args, { models }) => {
+		createUser: async (_, args, { models, sequelize }) => {
+			let hash, transaction;
 			try {
-				const hash = await bcrypt.hash(args.password, 5);
-				const res = await models.User.create({ ...args, password: hash });
+				hash = await bcrypt.hash(args.password, 5);
 			} catch (err) {
+				return {
+					ok: false,
+					error: formatErrors(err),
+				};
+			}
+			try {
+				transaction = await sequelize.transaction();
+				const user = await models.User.create({ ...args, password: hash });
+				await models.Profile.create({ userId: user.id });
+				//create profile here
+				transaction.commit();
+			} catch (err) {
+				transaction.rollback();
 				console.log(err);
 				return {
 					ok: false,

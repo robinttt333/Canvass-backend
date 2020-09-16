@@ -6,11 +6,14 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import { verify } from "jsonwebtoken";
 import { getTokens } from "./auth";
+import path from "path";
 
 const SECRET = "12gghjut%^&%gjhJHJ";
 const app = express();
-app.use(cookieParser());
 
+app.use(cookieParser());
+//eslint-disable-next-line
+app.use("/files", express.static(path.join(__dirname, "files")));
 const server = new ApolloServer({
 	typeDefs,
 	resolvers,
@@ -19,7 +22,6 @@ const server = new ApolloServer({
 //middleware to automatically verify and set token if it expires
 app.use(async (req, res, next) => {
 	let data;
-	const cookies = req.cookies;
 	let accessToken = req.cookies && req.cookies["access-token"];
 	const refreshToken = req.cookies && req.cookies["refresh-token"];
 
@@ -29,6 +31,7 @@ app.use(async (req, res, next) => {
 		const user = verify(accessToken, SECRET);
 		req.user = user;
 		return next();
+		//eslint-disable-next-line
 	} catch (err) {}
 
 	try {
