@@ -1,16 +1,18 @@
 import bcrypt from "bcrypt";
+import { sign } from "jsonwebtoken";
 
-export const LoginWithEmail = async (email, password, models) => {
-	const res = await models.User.findOne({ where: { email }, raw: true });
+const SECRET = "12gghjut%^&%gjhJHJ";
+export const LoginWithEmail = async (email, password, res, models) => {
+	const user = await models.User.findOne({ where: { email }, raw: true });
 	//email does not exist
-	if (!res) {
+	if (!user) {
 		return {
 			ok: false,
 			error: { path: "Email", message: "No such account exists" },
 		};
 	}
 	//password does not match
-	const match = await bcrypt.compare(password, res.password);
+	const match = await bcrypt.compare(password, user.password);
 	if (!match) {
 		return {
 			ok: false,
@@ -18,22 +20,25 @@ export const LoginWithEmail = async (email, password, models) => {
 		};
 	}
 	// success
+	const { accessToken, refreshToken } = getTokens(user);
+	res.cookie("access-token", accessToken);
+	res.cookie("refresh-token", refreshToken);
 	return {
 		ok: true,
 	};
 };
 
-export const LoginWithUsername = async (username, password, models) => {
-	const res = await models.User.findOne({ where: { username }, raw: true });
+export const LoginWithUsername = async (username, password, res, models) => {
+	const user = await models.User.findOne({ where: { username }, raw: true });
 	//username does not exist
-	if (!res) {
+	if (!user) {
 		return {
 			ok: false,
 			error: { path: "Username", message: "No such account exists" },
 		};
 	}
 	//password does not match
-	const match = await bcrypt.compare(password, res.password);
+	const match = await bcrypt.compare(password, user.password);
 	if (!match) {
 		return {
 			ok: false,
@@ -41,7 +46,21 @@ export const LoginWithUsername = async (username, password, models) => {
 		};
 	}
 	// success
+	const { accessToken, refreshToken } = getTokens(user);
+	res.cookie("access-token", accessToken);
+	res.cookie("refresh-token", refreshToken);
+
 	return {
 		ok: true,
 	};
+};
+
+export const getTokens = ({ id, username, count }) => {
+	const accessToken = sign({ userId: id, username, count }, SECRET, {
+		expiresIn: "20min",
+	});
+	const refreshToken = sign({ userId: id, username, count }, SECRET, {
+		expiresIn: "2d",
+	});
+	return { accessToken, refreshToken };
 };

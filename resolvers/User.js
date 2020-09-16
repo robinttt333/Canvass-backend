@@ -21,13 +21,14 @@ const UserResolvers = {
 			};
 		},
 
-		login: async (_, { usernameOrEmail, password }, { models }) => {
+		login: async (_, { usernameOrEmail, password }, { res, models }) => {
 			try {
 				// check if user is trying to login with email or username
 				let isEmail = false;
 				if (usernameOrEmail.includes("@")) isEmail = true;
-				if (isEmail) return LoginWithEmail(usernameOrEmail, password, models);
-				else return LoginWithUsername(usernameOrEmail, password, models);
+				if (isEmail)
+					return LoginWithEmail(usernameOrEmail, password, res, models);
+				else return LoginWithUsername(usernameOrEmail, password, res, models);
 			} catch (err) {
 				console.log(err);
 				return {
