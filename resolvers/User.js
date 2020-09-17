@@ -4,6 +4,10 @@ import formatErrors from "../formatError";
 
 const UserResolvers = {
 	Query: {},
+	User: {
+		profile: ({ id }, _, { models }) =>
+			models.Profile.findOne({ where: { userId: id }, raw: true }),
+	},
 	Mutation: {
 		createUser: async (_, args, { models, sequelize }) => {
 			let hash, transaction;

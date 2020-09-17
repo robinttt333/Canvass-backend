@@ -8,13 +8,12 @@ const ProfileResolvers = {
 			let res;
 			try {
 				res = await models.Group.findAll({
-					attributes: ["Users.username", "Users.email"],
+					attributes: ["Users.username", "Users.email", "Users.id"],
 					raw: true,
 					where: { id },
 					include: [
 						{
 							model: models.User,
-							attributes: ["username", "email"],
 							through: {
 								model: models.Member,
 								attributes: [],
@@ -25,7 +24,6 @@ const ProfileResolvers = {
 			} catch (err) {
 				console.log(err);
 			}
-			console.log(res);
 			return res;
 		},
 		createdAt: ({ createdAt }) => new Date(createdAt).toISOString(),

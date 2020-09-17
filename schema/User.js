@@ -5,6 +5,8 @@ const UserSchema = gql`
 		email: String!
 		username: String!
 		password: String!
+		profile: Profile!
+		id: Int!
 	}
 
 	type Error {

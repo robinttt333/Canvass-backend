@@ -19,7 +19,7 @@ app.use("/files", express.static(path.join(__dirname, "files")));
 const server = new ApolloServer({
 	typeDefs,
 	resolvers,
-	context: ({ req, res }) => ({ req, res, models, sequelize }),
+	context: ({ req, res }) => ({ req, res, models, sequelize, user: req.user }),
 });
 //middleware to automatically verify and set token if it expires
 app.use(async (req, res, next) => {
@@ -59,7 +59,10 @@ app.use(async (req, res, next) => {
 server.applyMiddleware({
 	app,
 	path: "/graphql",
-	cors: { origin: "http://127.0.0.1:3000", credentials: true },
+	cors: {
+		origin: "http://127.0.0.1:3000",
+		credentials: true,
+	},
 });
 
 const PORT = 4000;
