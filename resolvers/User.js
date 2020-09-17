@@ -18,8 +18,12 @@ const UserResolvers = {
 			try {
 				transaction = await sequelize.transaction();
 				const user = await models.User.create({ ...args, password: hash });
-				await models.Profile.create({ userId: user.id });
-				//create profile here
+				models.Profile.create({ userId: user.id });
+				//add the registered user to general and random groups
+				models.Member.bulkCreate([
+					{ userId: user.id, groupId: 1 },
+					{ userId: user.id, groupId: 2 },
+				]);
 				transaction.commit();
 			} catch (err) {
 				transaction.rollback();
