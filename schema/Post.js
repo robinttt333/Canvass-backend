@@ -8,11 +8,18 @@ const PostSchema = gql`
 		author: User!
 		groupId: Int!
 		id: Int!
+		likes: Int!
+		liked: Boolean!
 	}
 
 	type CreatePostResponse {
 		ok: Boolean!
 		error: Error
+		post: Post
+	}
+
+	type ToggleLikeResponse {
+		ok: Boolean!
 	}
 
 	extend type Query {
@@ -21,6 +28,7 @@ const PostSchema = gql`
 
 	extend type Mutation {
 		createPost(content: String!, groupId: Int!): CreatePostResponse!
+		toggleLike(postId: Int!): ToggleLikeResponse!
 	}
 
 	type Subscription {

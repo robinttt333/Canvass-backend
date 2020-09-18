@@ -3,6 +3,7 @@ import User from "./User";
 import Profile from "./Profile";
 import Group from "./Group";
 import Member from "./Member";
+import Like from "./Like";
 import Post from "./Post";
 import setupAssociations from "./setupAssociations";
 
@@ -15,6 +16,7 @@ User(sequelize);
 Profile(sequelize);
 Group(sequelize);
 Member(sequelize);
+Like(sequelize);
 Post(sequelize);
 
 export const models = sequelize.models;
