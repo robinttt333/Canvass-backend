@@ -16,6 +16,8 @@ const User = (sequelize) => {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
+		// This is used to logout user from all sessions once password is changed
+		// For more info see the logout method
 		count: {
 			type: DataTypes.INTEGER,
 			allowNull: false,

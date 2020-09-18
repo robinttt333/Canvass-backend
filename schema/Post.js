@@ -13,7 +13,6 @@ const PostSchema = gql`
 	type CreatePostResponse {
 		ok: Boolean!
 		error: Error
-		post: Post
 	}
 
 	extend type Query {
@@ -22,6 +21,10 @@ const PostSchema = gql`
 
 	extend type Mutation {
 		createPost(content: String!, groupId: Int!): CreatePostResponse!
+	}
+
+	type Subscription {
+		postAdded(groupId: Int!): Post!
 	}
 `;
 

@@ -1,7 +1,8 @@
+import { verify } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { sign } from "jsonwebtoken";
+import { SECRET, SECRET2 } from "./constants";
 
-const SECRET = "12gghjut%^&%gjhJHJ";
 export const LoginWithEmail = async (email, password, res, models) => {
 	const user = await models.User.findOne({ where: { email }, raw: true });
 	//email does not exist
@@ -20,7 +21,7 @@ export const LoginWithEmail = async (email, password, res, models) => {
 		};
 	}
 	// success
-	const { accessToken, refreshToken } = getTokens(user);
+	const { accessToken, refreshToken } = getNewTokens(user);
 	res.cookie("access-token", accessToken);
 	res.cookie("refresh-token", refreshToken);
 	return {
@@ -46,7 +47,7 @@ export const LoginWithUsername = async (username, password, res, models) => {
 		};
 	}
 	// success
-	const { accessToken, refreshToken } = getTokens(user);
+	const { accessToken, refreshToken } = getNewTokens(user);
 	res.cookie("access-token", accessToken);
 	res.cookie("refresh-token", refreshToken);
 
@@ -55,12 +56,44 @@ export const LoginWithUsername = async (username, password, res, models) => {
 	};
 };
 
-export const getTokens = ({ id, username, count }) => {
+export const getNewTokens = ({ id, username, count }) => {
 	const accessToken = sign({ userId: id, username, count }, SECRET, {
-		expiresIn: "20min",
+		expiresIn: "15min",
 	});
-	const refreshToken = sign({ userId: id, username, count }, SECRET, {
-		expiresIn: "2d",
-	});
+	const refreshToken = sign(
+		{ userId: id, username, count },
+		//change secret for refresh token
+		SECRET2,
+		{
+			expiresIn: "2d",
+		}
+	);
 	return { accessToken, refreshToken };
+};
+
+export const validateAccessToken = (accessToken) => {
+	// note: verify will throw error if token has expired or signature has changed
+	// 	malicious users can manipulate data in token but since they do not have the
+	// 	secret used so the signature will also change and they cannot generate the
+	// 	correct signature without the secret
+	if (!accessToken) return null;
+	//check if access token is valid
+	try {
+		const user = verify(accessToken, SECRET);
+		return user;
+		//eslint-disable-next-line
+	} catch (err) {
+		return null;
+	}
+};
+
+export const validateRefreshToken = (refreshToken) => {
+	if (!refreshToken) return null;
+	try {
+		const user = verify(refreshToken, SECRET2);
+		// access token has expired but refresh token is valid ie not expired and also not tempered
+		return user;
+	} catch (err) {
+		return null;
+	}
 };
