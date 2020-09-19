@@ -4,10 +4,10 @@ const GroupSchema = gql`
 	type Group {
 		name: String!
 		createdAt: String!
-		members: [User!]!
 		image: String!
 		public: Boolean!
 		description: String!
+		members: Int!
 		admin: Int
 	}
 
