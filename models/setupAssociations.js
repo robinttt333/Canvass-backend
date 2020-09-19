@@ -1,5 +1,5 @@
 export default (models) => {
-	const { User, Profile, Group, Member, Post, Like } = models;
+	const { User, Profile, Group, Member, Post, Comment, Like } = models;
 	// one to one mapping of user and profile, foreign key will be in profile
 	User.hasOne(Profile, {
 		//delete profile once user account is deleted
@@ -41,5 +41,14 @@ export default (models) => {
 	Post.belongsToMany(User, {
 		through: Like,
 		foreignKey: "postId",
+	});
+
+	//one to many mapping from post and comment
+	Post.hasMany(Comment, {
+		foreignKey: "postId",
+	});
+	//one to many mapping from user and comment
+	User.hasMany(Comment, {
+		foreignKey: "userId",
 	});
 };

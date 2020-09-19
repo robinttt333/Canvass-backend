@@ -15,7 +15,6 @@ const PostSchema = gql`
 	type CreatePostResponse {
 		ok: Boolean!
 		error: Error
-		post: Post
 	}
 
 	type ToggleLikeResponse {

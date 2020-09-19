@@ -5,6 +5,7 @@ import Group from "./Group";
 import Member from "./Member";
 import Like from "./Like";
 import Post from "./Post";
+import Comment from "./Comment";
 import setupAssociations from "./setupAssociations";
 
 export const sequelize = new Sequelize("canvass", "postgres", "postgres", {
@@ -16,8 +17,9 @@ User(sequelize);
 Profile(sequelize);
 Group(sequelize);
 Member(sequelize);
-Like(sequelize);
 Post(sequelize);
+Comment(sequelize);
+Like(sequelize);
 
 export const models = sequelize.models;
 setupAssociations(models);

@@ -2,7 +2,7 @@ import { verify } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { sign } from "jsonwebtoken";
 import { SECRET, SECRET2 } from "./constants";
-
+import { models } from "./models";
 export const LoginWithEmail = async (email, password, res, models) => {
 	const user = await models.User.findOne({ where: { email }, raw: true });
 	//email does not exist
@@ -96,4 +96,19 @@ export const validateRefreshToken = (refreshToken) => {
 	} catch (err) {
 		return null;
 	}
+};
+
+export const checkGroupMemberShip = async (userId, groupId) => {
+	let res;
+	try {
+		res = await models.Member.findOne({
+			where: { userId, groupId },
+			raw: true,
+		});
+	} catch (err) {
+		console.log(err);
+		return false;
+	}
+	if (!res) return false;
+	return true;
 };
