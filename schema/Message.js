@@ -2,6 +2,7 @@ import { gql } from "apollo-server-express";
 
 const MessageSchema = gql`
 	type Message {
+		id: Int!
 		createdAt: String!
 		sender: User!
 		receiver: User!
@@ -13,12 +14,15 @@ const MessageSchema = gql`
 	}
 
 	extend type Query {
-		getChat(userId: Int!): Group!
+		getChat(userId: Int!): [Message!]!
 		getChatMembers: [User!]!
 	}
 
 	extend type Mutation {
-		createMessage(userId: Int!, content: String!): SendMessageResponse!
+		createMessage(content: String!, receiver: Int!): SendMessageResponse!
+	}
+	extend type Subscription {
+		messageAdded: Message!
 	}
 `;
 
