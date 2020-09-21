@@ -3,6 +3,7 @@ import formatErrors from "../formatError";
 import pubsub from "../pubsub";
 import { MESSAGE_ADDED } from "../events";
 import { withFilter } from "apollo-server";
+import { CHAT_MEMBER_ADDED } from "../events";
 
 const Message = {
 	Subscription: {
@@ -21,6 +22,18 @@ const Message = {
 				}
 			),
 		},
+
+		chatMemberAdded: {
+			subscribe: withFilter(
+				() => pubsub.asyncIterator(CHAT_MEMBER_ADDED),
+				async ({ chatMemberAdded }, _, { user: { userId }, models }) => {
+					// check if current user is actually the receiver of the message
+					console.log(chatMemberAdded);
+					if (chatMemberAdded.receiver === userId) return true;
+					return false;
+				}
+			),
+		},
 	},
 	Mutation: {
 		createMessage: async (_, args, { models, user: { userId } }) => {
@@ -33,6 +46,25 @@ const Message = {
 			} catch (err) {
 				console.log(err);
 				return { ok: false, error: formatErrors(err) };
+			}
+			// also check if this is the firs message of their conversation
+			const messageCount = await models.Message.count({
+				raw: true,
+				where: {
+					[Op.or]: [
+						{ [Op.and]: [{ sender: userId }, { receiver: args.receiver }] },
+						{ [Op.and]: [{ receiver: userId }, { sender: args.receiver }] },
+					],
+				},
+			});
+			if (messageCount === 1) {
+				const user = await models.User.findOne({
+					where: { id: userId },
+					raw: true,
+				});
+				pubsub.publish(CHAT_MEMBER_ADDED, {
+					chatMemberAdded: { ...user, receiver: args.receiver },
+				});
 			}
 			return { ok: true };
 		},

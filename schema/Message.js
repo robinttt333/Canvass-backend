@@ -23,6 +23,7 @@ const MessageSchema = gql`
 	}
 	extend type Subscription {
 		messageAdded: Message!
+		chatMemberAdded: User!
 	}
 `;
 
