@@ -19,11 +19,6 @@ const UserSchema = gql`
 		error: Error
 	}
 
-	type getUserResponse {
-		user: User
-		ok: Boolean!
-	}
-
 	type LoginResponse {
 		ok: Boolean!
 		error: Error
@@ -31,7 +26,7 @@ const UserSchema = gql`
 
 	type Query {
 		allUsers: [User!]!
-		getUser(username: String, email: String): getUserResponse!
+		getUser(userId: Int!): User!
 	}
 
 	type Mutation {

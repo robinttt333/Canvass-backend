@@ -7,7 +7,11 @@ import cookieParser from "cookie-parser";
 import http from "http";
 import { makeGroups } from "./general";
 import tokenValidateAndResetMiddleware from "./tokenValidateAndResetMiddleware";
-import { validateAccessToken } from "./auth";
+import {
+	getNewTokens,
+	validateRefreshToken,
+	validateAccessToken,
+} from "./auth";
 import pubsub from "./pubsub";
 import { TOGGLE_USER_JOINED } from "./events";
 
@@ -30,7 +34,7 @@ const server = new ApolloServer({
 	typeDefs,
 	resolvers,
 	subscriptions: {
-		onConnect: async ({ accessToken }) => {
+		onConnect: async ({ accessToken, refreshToken }) => {
 			let tokenUser;
 			tokenUser = validateAccessToken(accessToken);
 			if (tokenUser) {

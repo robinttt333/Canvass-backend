@@ -11,24 +11,42 @@ const UserResolvers = {
 		toggleUserJoined: {
 			subscribe: withFilter(
 				() => pubsub.asyncIterator(TOGGLE_USER_JOINED),
-				async ({ userJoined }, _, { user: { userId: me }, models }) => {
-					//const res = await models.Message.findOne({
-					//raw: true,
-					//where: {
-					//[Op.or]: [
-					//{ [Op.and]: [{ sender: me }, { receiver: userJoined.id }] },
-					//{ [Op.and]: [{ receiver: me }, { sender: userJoined.id }] },
-					//],
-					//},
-					//});
-					//console.log(res);
-					//if (!res) return false;
+				async ({ toggleUserJoined }, _, { user: { userId: me }, models }) => {
+					let res;
+					try {
+						res = await models.Message.findOne({
+							raw: true,
+							where: {
+								[Op.or]: [
+									{
+										[Op.and]: [
+											{ sender: me },
+											{ receiver: toggleUserJoined.id },
+										],
+									},
+									{
+										[Op.and]: [
+											{ receiver: me },
+											{ sender: toggleUserJoined.id },
+										],
+									},
+								],
+							},
+						});
+					} catch (err) {
+						console.log(err);
+					}
+					console.log(res);
+					if (!res) return false;
 					return true;
 				}
 			),
 		},
 	},
-	Query: {},
+	Query: {
+		getUser: async (_, { userId }, { models }) =>
+			await models.User.findOne({ where: { id: userId }, raw: true }),
+	},
 	User: {
 		profile: ({ id }, _, { models }) =>
 			models.Profile.findOne({ where: { userId: id }, raw: true }),

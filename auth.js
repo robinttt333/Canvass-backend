@@ -91,7 +91,6 @@ export const validateAccessToken = (accessToken) => {
 	// 	correct signature without the secret
 	if (!accessToken) return null;
 	//check if access token is valid
-	console.log(accessToken);
 	try {
 		const user = verify(accessToken, SECRET);
 		return user;
