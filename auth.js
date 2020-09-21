@@ -3,6 +3,9 @@ import bcrypt from "bcrypt";
 import { sign } from "jsonwebtoken";
 import { SECRET, SECRET2 } from "./constants";
 import { models } from "./models";
+import pubsub from "./pubsub";
+import { TOGGLE_USER_JOINED } from "./events";
+
 export const LoginWithEmail = async (email, password, res, models) => {
 	const user = await models.User.findOne({ where: { email }, raw: true });
 	//email does not exist
@@ -24,6 +27,11 @@ export const LoginWithEmail = async (email, password, res, models) => {
 	const { accessToken, refreshToken } = getNewTokens(user);
 	res.cookie("access-token", accessToken);
 	res.cookie("refresh-token", refreshToken);
+	await models.Profile.update(
+		{ lastSeen: "active now" },
+		{ where: { userId: user.id } }
+	);
+	pubsub.publish(TOGGLE_USER_JOINED, { toggleUserJoined: user });
 	return {
 		ok: true,
 	};
@@ -51,6 +59,11 @@ export const LoginWithUsername = async (username, password, res, models) => {
 	res.cookie("access-token", accessToken);
 	res.cookie("refresh-token", refreshToken);
 
+	await models.Profile.update(
+		{ lastSeen: "active now" },
+		{ where: { userId: user.id } }
+	);
+	pubsub.publish(TOGGLE_USER_JOINED, { toggleUserJoined: user });
 	return {
 		ok: true,
 	};
@@ -78,6 +91,7 @@ export const validateAccessToken = (accessToken) => {
 	// 	correct signature without the secret
 	if (!accessToken) return null;
 	//check if access token is valid
+	console.log(accessToken);
 	try {
 		const user = verify(accessToken, SECRET);
 		return user;

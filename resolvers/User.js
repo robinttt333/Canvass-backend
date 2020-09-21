@@ -1,8 +1,33 @@
 import bcrypt from "bcrypt";
 import { LoginWithEmail, LoginWithUsername } from "../auth";
 import formatErrors from "../formatError";
+import { TOGGLE_USER_JOINED } from "../events";
+import pubsub from "../pubsub";
+import { withFilter } from "apollo-server";
+import { Op } from "sequelize";
 
 const UserResolvers = {
+	Subscription: {
+		toggleUserJoined: {
+			subscribe: withFilter(
+				() => pubsub.asyncIterator(TOGGLE_USER_JOINED),
+				async ({ userJoined }, _, { user: { userId: me }, models }) => {
+					//const res = await models.Message.findOne({
+					//raw: true,
+					//where: {
+					//[Op.or]: [
+					//{ [Op.and]: [{ sender: me }, { receiver: userJoined.id }] },
+					//{ [Op.and]: [{ receiver: me }, { sender: userJoined.id }] },
+					//],
+					//},
+					//});
+					//console.log(res);
+					//if (!res) return false;
+					return true;
+				}
+			),
+		},
+	},
 	Query: {},
 	User: {
 		profile: ({ id }, _, { models }) =>

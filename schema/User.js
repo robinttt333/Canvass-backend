@@ -42,6 +42,10 @@ const UserSchema = gql`
 		): createUserResponse!
 		login(usernameOrEmail: String!, password: String!): LoginResponse!
 	}
+
+	extend type Subscription {
+		toggleUserJoined: User!
+	}
 `;
 
 export default UserSchema;

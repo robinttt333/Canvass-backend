@@ -2,6 +2,7 @@ import { gql } from "apollo-server-express";
 
 const ProfileSchema = gql`
 	type Profile {
+		id: Int!
 		firstName: String
 		lastName: String
 		dp: String!
@@ -10,6 +11,7 @@ const ProfileSchema = gql`
 		sex: Boolean!
 		user: User!
 		createdAt: String!
+		lastSeen: String
 	}
 
 	extend type Query {

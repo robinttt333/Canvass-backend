@@ -22,6 +22,9 @@ const Profile = (sequelize) => {
 			type: DataTypes.STRING,
 			defaultValue: "anonymous.png",
 		},
+		lastSeen: {
+			type: DataTypes.STRING,
+		},
 		sex: {
 			// true : male, false : female
 			type: DataTypes.BOOLEAN,

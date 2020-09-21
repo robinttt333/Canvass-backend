@@ -7,7 +7,10 @@ import cookieParser from "cookie-parser";
 import http from "http";
 import { makeGroups } from "./general";
 import tokenValidateAndResetMiddleware from "./tokenValidateAndResetMiddleware";
-import { validateAccessToken, validateRefreshToken } from "./auth";
+import { validateAccessToken } from "./auth";
+import pubsub from "./pubsub";
+import { TOGGLE_USER_JOINED } from "./events";
+
 import {
 	GRAPHQL_PORT,
 	GRAPHQL_PATH,
@@ -27,13 +30,41 @@ const server = new ApolloServer({
 	typeDefs,
 	resolvers,
 	subscriptions: {
-		onConnect: ({ accessToken }) => {
+		onConnect: async ({ accessToken }) => {
 			let tokenUser;
 			tokenUser = validateAccessToken(accessToken);
 			if (tokenUser) {
+				await models.Profile.update(
+					{ lastSeen: "active now" },
+					{ where: { userId: tokenUser.userId } }
+				);
+				const user = await models.User.findOne({
+					where: { id: tokenUser.userId },
+					raw: true,
+				});
+				pubsub.publish(TOGGLE_USER_JOINED, { toggleUserJoined: user });
 				return { user: tokenUser };
 			}
 			throw new Error("Invalid token");
+		},
+		onDisconnect: async (_, context) => {
+			// update last seen of user to current date when he disconnects
+			const initialContext = await context.initPromise;
+			if (
+				initialContext &&
+				typeof initialContext === "object" &&
+				Reflect.has(initialContext, "user")
+			) {
+				const {
+					user: { userId },
+				} = initialContext;
+				await models.Profile.update(
+					{ lastSeen: new Date().toISOString() },
+					{ where: { userId } }
+				);
+				const user = await models.User.findOne({ where: { id: userId } });
+				pubsub.publish(TOGGLE_USER_JOINED, { toggleUserJoined: user });
+			}
 		},
 	},
 	context: ({ req, res, connection }) => {
