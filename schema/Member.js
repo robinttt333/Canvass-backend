@@ -8,5 +8,9 @@ const MemberSchema = gql`
 	extend type Query {
 		getGroupMembers(groupId: Int!): [Member!]!
 	}
+	extend type Subscription {
+		groupMemberAdded(groupId: Int!): Member!
+	}
 `;
+
 export default MemberSchema;

@@ -24,6 +24,11 @@ const UserSchema = gql`
 		error: Error
 	}
 
+	type UpdatePasswordResponse {
+		ok: Boolean!
+		error: Error
+	}
+
 	type Query {
 		allUsers: [User!]!
 		getUser(userId: Int!): User!
@@ -36,6 +41,10 @@ const UserSchema = gql`
 			password: String!
 		): createUserResponse!
 		login(usernameOrEmail: String!, password: String!): LoginResponse!
+		changePassword(
+			oldPassword: String!
+			newPassword: String!
+		): UpdatePasswordResponse!
 	}
 
 	extend type Subscription {

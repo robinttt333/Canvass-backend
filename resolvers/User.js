@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import { LoginWithEmail, LoginWithUsername } from "../auth";
 import formatErrors from "../formatError";
-import { TOGGLE_USER_JOINED } from "../events";
+import { GROUP_MEMBER_ADDED, TOGGLE_USER_JOINED } from "../events";
 import pubsub from "../pubsub";
 import { withFilter } from "apollo-server";
 import { Op } from "sequelize";
@@ -36,7 +36,6 @@ const UserResolvers = {
 					} catch (err) {
 						console.log(err);
 					}
-					console.log(res);
 					if (!res) return false;
 					return true;
 				}
@@ -52,6 +51,7 @@ const UserResolvers = {
 			models.Profile.findOne({ where: { userId: id }, raw: true }),
 	},
 	Mutation: {
+		//toggleUserOnlineStatus: (_, __, { models, user: { userId } }) => {},
 		createUser: async (_, args, { models, sequelize }) => {
 			let hash, transaction;
 			try {
@@ -64,14 +64,24 @@ const UserResolvers = {
 			}
 			try {
 				transaction = await sequelize.transaction();
-				const user = await models.User.create({ ...args, password: hash });
-				models.Profile.create({ userId: user.id });
+				const user = (
+					await models.User.create({ ...args, password: hash })
+				).get({
+					plain: true,
+				});
+				await models.Profile.create({ userId: user.id });
 				//add the registered user to general and random groups
-				models.Member.bulkCreate([
+				await models.Member.bulkCreate([
 					{ userId: user.id, groupId: 1 },
 					{ userId: user.id, groupId: 2 },
 				]);
 				transaction.commit();
+				pubsub.publish(GROUP_MEMBER_ADDED, {
+					groupMemberAdded: { ...user, groupId: 1 },
+				});
+				pubsub.publish(GROUP_MEMBER_ADDED, {
+					groupMemberAdded: { ...user, groupId: 2 },
+				});
 			} catch (err) {
 				transaction.rollback();
 				console.log(err);
@@ -103,6 +113,36 @@ const UserResolvers = {
 					},
 				};
 			}
+		},
+		changePassword: async (
+			_,
+			{ oldPassword, newPassword },
+			{ models, user: { userId: id } }
+		) => {
+			const user = await models.User.findOne({ where: { id }, raw: true });
+			let hash;
+			//password does not match
+			const match = await bcrypt.compare(oldPassword, user.password);
+			if (!match) {
+				return {
+					ok: false,
+					error: { path: "Password", message: "Invalid Password" },
+				};
+			}
+			//user entered correct password
+			try {
+				hash = await bcrypt.hash(newPassword, 5);
+				await models.User.update(
+					{ password: hash, count: user.count + 1 },
+					{ where: { id } }
+				);
+			} catch (err) {
+				return {
+					ok: false,
+					error: formatErrors(err),
+				};
+			}
+			return { ok: true };
 		},
 	},
 };

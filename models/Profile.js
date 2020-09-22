@@ -25,7 +25,7 @@ const Profile = (sequelize) => {
 		lastSeen: {
 			type: DataTypes.STRING,
 		},
-		sex: {
+		gender: {
 			// true : male, false : female
 			type: DataTypes.BOOLEAN,
 			defaultValue: true,

@@ -7,12 +7,9 @@ import cookieParser from "cookie-parser";
 import http from "http";
 import { makeGroups } from "./general";
 import tokenValidateAndResetMiddleware from "./tokenValidateAndResetMiddleware";
-import {
-	getNewTokens,
-	validateRefreshToken,
-	validateAccessToken,
-} from "./auth";
+import { validateAccessToken } from "./auth";
 import pubsub from "./pubsub";
+import mkdirp from "mkdirp";
 import { TOGGLE_USER_JOINED } from "./events";
 
 import {
@@ -23,6 +20,9 @@ import {
 	STATIC_DIR_PATH,
 } from "./constants";
 
+// Setup for uploading files
+const uploadDir = "./files";
+mkdirp.sync(uploadDir);
 const app = express();
 // express Middleware
 app.use(cookieParser());
@@ -49,7 +49,6 @@ const server = new ApolloServer({
 				pubsub.publish(TOGGLE_USER_JOINED, { toggleUserJoined: user });
 				return { user: tokenUser };
 			}
-			throw new Error("Invalid token");
 		},
 		onDisconnect: async (_, context) => {
 			// update last seen of user to current date when he disconnects

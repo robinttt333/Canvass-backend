@@ -84,7 +84,7 @@ const Message = {
 					(Users.id = Messages.sender and Messages.receiver = :userId)
 					or
 					(Users.id = Messages.receiver and Messages.sender = :userId)
-				) and Users.id <> :userId`,
+				) `,
 				{
 					replacements: { userId },
 				}
