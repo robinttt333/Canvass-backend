@@ -7,6 +7,7 @@ const MessageSchema = gql`
 		sender: User!
 		receiver: User!
 		content: String!
+		read: Boolean!
 	}
 	type SendMessageResponse {
 		ok: Boolean!

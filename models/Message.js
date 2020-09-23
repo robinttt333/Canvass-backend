@@ -6,6 +6,10 @@ const Message = (sequelize) => {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
+		read: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false,
+		},
 	});
 };
 export default Message;
