@@ -14,9 +14,15 @@ const MessageSchema = gql`
 		error: Error
 	}
 
+	type ChatMember {
+		user: User!
+		unreadMessagesCount: Int!
+	}
+
 	extend type Query {
 		getChat(userId: Int!): [Message!]!
-		getChatMembers: [User!]!
+		getChatMembers: [ChatMember!]!
+		getUnreadMessagesCount: Int!
 	}
 
 	extend type Mutation {

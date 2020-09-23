@@ -28,7 +28,6 @@ const Message = {
 				() => pubsub.asyncIterator(CHAT_MEMBER_ADDED),
 				async ({ chatMemberAdded }, _, { user: { userId }, models }) => {
 					// check if current user is actually the receiver of the message
-					console.log(chatMemberAdded);
 					if (chatMemberAdded.receiver === userId) return true;
 					return false;
 				}
@@ -43,6 +42,13 @@ const Message = {
 					sender: userId,
 				});
 				pubsub.publish(MESSAGE_ADDED, { messageAdded: message });
+				const user = await models.User.findOne({
+					where: { id: userId },
+					raw: true,
+				});
+				pubsub.publish(CHAT_MEMBER_ADDED, {
+					chatMemberAdded: { ...user, receiver: args.receiver },
+				});
 			} catch (err) {
 				console.log(err);
 				return { ok: false, error: formatErrors(err) };
@@ -69,13 +75,28 @@ const Message = {
 			return { ok: true };
 		},
 	},
+	ChatMember: {
+		user: (parent) => parent,
+		unreadMessagesCount: async ({ id }, __, { models, user: { userId } }) => {
+			let res;
+			try {
+				res = await models.Message.count({
+					where: { receiver: userId, sender: id, read: false },
+				});
+			} catch (err) {
+				console.log(err);
+			}
+			return res;
+		},
+	},
 	Query: {
+		getUnreadMessagesCount: async (_, __, { models, user: { userId } }) =>
+			await models.Message.count({ where: { receiver: userId, read: false } }),
 		getChatMembers: async (_, __, { sequelize, user: { userId } }) => {
 			//We join Message and User using the fact that whether
 			//current user is either the sender and receiver
 			//Thus we get all conversations in which he/she is involved
 			//Note the distinct in the beginning of the query
-			console.log(userId);
 			const res = await sequelize.query(
 				`
 		Select distinct Users.id,Users.username
@@ -91,7 +112,18 @@ const Message = {
 			);
 			return res[0];
 		},
-		getChat: async (_, { userId }, { models, user: { userId: me } }) => {
+		getChat: async (
+			_,
+			{ userId },
+			{ sequelize, models, user: { userId: me } }
+		) => {
+			await sequelize.query(
+				`Update "Messages" set read=true where
+					sender=:userId and receiver=:me`,
+				{
+					replacements: { me, userId },
+				}
+			);
 			//This is equivalent to select * from messages where
 			//sender=user and receiver=me or sender=me and receiver=user
 			const res = await models.Message.findAll({
