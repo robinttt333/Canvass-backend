@@ -5,6 +5,7 @@ import PostSchema from "./Post";
 import CommentSchema from "./Comment";
 import MessageSchema from "./Message";
 import MemberSchema from "./Member";
+import FriendSchema from "./Friend";
 
 const schema = [
 	UserSchema,
@@ -14,5 +15,6 @@ const schema = [
 	CommentSchema,
 	MessageSchema,
 	MemberSchema,
+	FriendSchema,
 ];
 export default schema;

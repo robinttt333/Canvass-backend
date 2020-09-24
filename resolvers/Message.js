@@ -26,7 +26,7 @@ const Message = {
 		chatMemberAdded: {
 			subscribe: withFilter(
 				() => pubsub.asyncIterator(CHAT_MEMBER_ADDED),
-				async ({ chatMemberAdded }, _, { user: { userId }, models }) => {
+				async ({ chatMemberAdded }, _, { user: { userId } }) => {
 					// check if current user is actually the receiver of the message
 					if (chatMemberAdded.receiver === userId) return true;
 					return false;

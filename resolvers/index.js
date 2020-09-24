@@ -5,6 +5,16 @@ import Post from "./Post";
 import Comment from "./Comment";
 import Message from "./Message";
 import Member from "./Member";
+import Friend from "./Friend";
 
-const resolvers = [User, Profile, Group, Post, Comment, Message, Member];
+const resolvers = [
+	User,
+	Profile,
+	Group,
+	Post,
+	Comment,
+	Message,
+	Member,
+	Friend,
+];
 export default resolvers;

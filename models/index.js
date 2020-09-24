@@ -7,6 +7,7 @@ import Like from "./Like";
 import Post from "./Post";
 import Comment from "./Comment";
 import Message from "./Message";
+import Friend from "./Friend";
 import setupAssociations from "./setupAssociations";
 
 export const sequelize = new Sequelize("canvass", "postgres", "postgres", {
@@ -22,6 +23,7 @@ Post(sequelize);
 Comment(sequelize);
 Like(sequelize);
 Message(sequelize);
+Friend(sequelize);
 
 export const models = sequelize.models;
 setupAssociations(models);
