@@ -54,24 +54,25 @@ const Message = {
 				return { ok: false, error: formatErrors(err) };
 			}
 			// also check if this is the firs message of their conversation
-			const messageCount = await models.Message.count({
-				raw: true,
-				where: {
-					[Op.or]: [
-						{ [Op.and]: [{ sender: userId }, { receiver: args.receiver }] },
-						{ [Op.and]: [{ receiver: userId }, { sender: args.receiver }] },
-					],
-				},
-			});
-			if (messageCount === 1) {
-				const user = await models.User.findOne({
-					where: { id: userId },
-					raw: true,
-				});
-				pubsub.publish(CHAT_MEMBER_ADDED, {
-					chatMemberAdded: { ...user, receiver: args.receiver },
-				});
-			}
+			//const messageCount = await models.Message.count({
+			//raw: true,
+			//where: {
+			//[Op.or]: [
+			//{ [Op.and]: [{ sender: userId }, { receiver: args.receiver }] },
+			//{ [Op.and]: [{ receiver: userId }, { sender: args.receiver }] },
+			//],
+			//},
+			//});
+			////add the current user to the left side bar of the receiver
+			//if (messageCount === 1) {
+			//const user = await models.User.findOne({
+			//where: { id: userId },
+			//raw: true,
+			//});
+			//pubsub.publish(CHAT_MEMBER_ADDED, {
+			//chatMemberAdded: { ...user, receiver: args.receiver },
+			//});
+			//}
 			return { ok: true };
 		},
 	},
@@ -128,6 +129,7 @@ const Message = {
 			//sender=user and receiver=me or sender=me and receiver=user
 			const res = await models.Message.findAll({
 				raw: true,
+				order: [["createdAt", "ASC"]],
 				where: {
 					[Op.or]: [
 						{ [Op.and]: [{ sender: me }, { receiver: userId }] },

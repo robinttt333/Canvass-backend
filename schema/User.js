@@ -32,6 +32,7 @@ const UserSchema = gql`
 	type Query {
 		allUsers: [User!]!
 		getUser(userId: Int!): User!
+		getFriends(userId: Int!): [User!]!
 	}
 
 	type Mutation {

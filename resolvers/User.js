@@ -45,6 +45,30 @@ const UserResolvers = {
 	Query: {
 		getUser: async (_, { userId }, { models }) =>
 			await models.User.findOne({ where: { id: userId }, raw: true }),
+		getFriends: async (_, { userId }, { sequelize }) => {
+			let res;
+			try {
+				res = await sequelize.query(
+					`Select "Users"."username", "Users"."id"
+				from "Users","Friends"
+				where
+				(
+("Users"."id" = "Friends"."friendId" and :userId = "Friends"."userId")
+or
+("Users"."id" = "Friends"."userId" and :userId = "Friends"."friendId")
+				)
+				and "Friends"."status"='confirmed'
+			`,
+					{
+						replacements: { userId },
+						raw: true,
+					}
+				);
+			} catch (err) {
+				console.log(err);
+			}
+			return res[0];
+		},
 	},
 	User: {
 		profile: ({ id }, _, { models }) =>

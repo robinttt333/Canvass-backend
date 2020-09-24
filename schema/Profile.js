@@ -12,6 +12,7 @@ const ProfileSchema = gql`
 		user: User!
 		createdAt: String!
 		lastSeen: String
+		friends: Int!
 	}
 
 	type UpdateProfileResponse {

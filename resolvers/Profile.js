@@ -1,4 +1,5 @@
 import formatErrors from "../formatError";
+import { Op } from "sequelize";
 import { createWriteStream, unlink } from "fs";
 
 const fileUpload = async (createReadStream, filename) => {
@@ -30,6 +31,15 @@ const ProfileResolvers = {
 			await models.User.findOne({ where: { id: userId }, raw: true }),
 		createdAt: ({ createdAt }) => new Date(createdAt).toISOString(),
 		dp: ({ dp }) => `http://127.0.0.1:4000/files/${dp}`,
+		friends: async ({ userId }, _, { models }) => {
+			const res = await models.Friend.count({
+				where: {
+					[Op.or]: [{ userId }, { friendId: userId }],
+					status: "confirmed",
+				},
+			});
+			return res;
+		},
 	},
 	Mutation: {
 		updateImage: async (_, { file }, { models, user: { userId } }) => {
