@@ -10,6 +10,7 @@ export default (models) => {
 		Message,
 		Friend,
 		LastPostSeen,
+		Notification,
 	} = models;
 	// one to one mapping of user and profile, foreign key will be in profile
 	User.hasOne(Profile, {
@@ -87,5 +88,13 @@ export default (models) => {
 	Group.belongsToMany(User, {
 		through: LastPostSeen,
 		foreignKey: "groupId",
+	});
+
+	// Notification many to many mapping
+	User.hasMany(Notification, {
+		foreignKey: "sender",
+	});
+	User.hasMany(Notification, {
+		foreignKey: "receiver",
 	});
 };

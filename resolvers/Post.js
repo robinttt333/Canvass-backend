@@ -2,6 +2,7 @@ import formatErrors from "../formatError";
 import pubsub from "../pubsub";
 import { POST_ADDED_TO_MY_GROUP, POST_ADDED } from "../events";
 import { withFilter } from "apollo-server";
+import { deleteLikeNotification, createLikeNotification } from "../general";
 
 const ProfileResolvers = {
 	Subscription: {
@@ -95,8 +96,10 @@ const ProfileResolvers = {
 				const like = await models.Like.findOne({ where: { postId, userId } });
 				if (like) {
 					await models.Like.destroy({ where: { postId, userId } });
+					deleteLikeNotification({ sender: userId, models, postId });
 				} else {
 					await models.Like.create({ postId, userId });
+					createLikeNotification({ sender: userId, models, postId });
 				}
 			} catch (err) {
 				console.log(err);

@@ -3,6 +3,7 @@ import pubsub from "../pubsub";
 import { withFilter } from "apollo-server";
 import { COMMENT_ADDED } from "../events";
 import { checkGroupMemberShip } from "../auth";
+import { createCommentNotification } from "../general";
 
 const Comment = {
 	Query: {
@@ -19,6 +20,12 @@ const Comment = {
 			try {
 				comment = (await models.Comment.create({ ...args, userId })).get({
 					plain: true,
+				});
+
+				createCommentNotification({
+					postId: args.postId,
+					sender: userId,
+					models,
 				});
 			} catch (err) {
 				return { ok: false, error: formatErrors(err) };
