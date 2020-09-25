@@ -1,10 +1,4 @@
-import { DataTypes } from "sequelize";
-
 const LastPostSeen = (sequelize) => {
-	sequelize.define("LastPostSeen", {
-		timestamp: {
-			type: DataTypes.DATE,
-		},
-	});
+	sequelize.define("LastPostSeen", {});
 };
 export default LastPostSeen;

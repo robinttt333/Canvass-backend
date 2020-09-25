@@ -7,7 +7,7 @@ const LastPostSeen = {
 		) => {
 			try {
 				models.LastPostSeen.update(
-					{ timestamp: new Date() },
+					{ groupId, userId },
 					{ where: { groupId, userId } }
 				);
 			} catch (err) {

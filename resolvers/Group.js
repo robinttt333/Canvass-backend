@@ -50,7 +50,7 @@ const ProfileResolvers = {
 			// user has not seen any posts of this group
 			if (!res)
 				return await models.Post.count({ where: { groupId }, raw: true });
-			const timestamp = res.timestamp;
+			const timestamp = res.updatedAt;
 			// find all posts greater than the last timestamp ie which were created
 			// after the last time the user visited this group
 			const count = await models.Post.findAll({
