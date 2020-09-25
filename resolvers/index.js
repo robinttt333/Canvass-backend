@@ -6,6 +6,7 @@ import Comment from "./Comment";
 import Message from "./Message";
 import Member from "./Member";
 import Friend from "./Friend";
+import LastPostSeen from "./LastPostSeen";
 
 const resolvers = [
 	User,
@@ -16,5 +17,6 @@ const resolvers = [
 	Message,
 	Member,
 	Friend,
+	LastPostSeen,
 ];
 export default resolvers;

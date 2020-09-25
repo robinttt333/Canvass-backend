@@ -1,6 +1,6 @@
 import formatErrors from "../formatError";
 import pubsub from "../pubsub";
-import { POST_ADDED } from "../events";
+import { POST_ADDED_TO_MY_GROUP, POST_ADDED } from "../events";
 import { withFilter } from "apollo-server";
 
 const ProfileResolvers = {
@@ -22,6 +22,28 @@ const ProfileResolvers = {
 					}
 					if (!res) return false;
 					if (postAdded.groupId !== groupId) return false;
+					return true;
+				}
+			),
+		},
+		// required for left side bar
+		postAddedToMyGroup: {
+			subscribe: withFilter(
+				() => pubsub.asyncIterator(POST_ADDED_TO_MY_GROUP),
+				async ({ postAddedToMyGroup }, _, { user: { userId }, models }) => {
+					// check if current user is a member of group
+					let res;
+					try {
+						res = await models.Member.findOne({
+							where: { userId, groupId: postAddedToMyGroup.groupId },
+							raw: true,
+						});
+					} catch (err) {
+						console.log(err);
+						return false;
+					}
+					if (!res) return false;
+					//if (postAdded.groupId !== groupId) return false;
 					return true;
 				}
 			),
@@ -54,6 +76,7 @@ const ProfileResolvers = {
 				).get({ plain: true });
 
 				pubsub.publish(POST_ADDED, { postAdded: post });
+				pubsub.publish(POST_ADDED_TO_MY_GROUP, { postAddedToMyGroup: post });
 			} catch (err) {
 				console.log(err);
 				return {

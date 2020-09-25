@@ -91,8 +91,18 @@ const Message = {
 		},
 	},
 	Query: {
-		getUnreadMessagesCount: async (_, __, { models, user: { userId } }) =>
-			await models.Message.count({ where: { receiver: userId, read: false } }),
+		getUnreadMessagesCount: async (_, __, { models, user: { userId } }) => {
+			let res;
+			try {
+				res = await models.Message.count({
+					where: { receiver: userId, read: false },
+				});
+			} catch (err) {
+				console.log(err);
+			}
+
+			return res;
+		},
 		getChatMembers: async (_, __, { sequelize, user: { userId } }) => {
 			//We join Message and User using the fact that whether
 			//current user is either the sender and receiver

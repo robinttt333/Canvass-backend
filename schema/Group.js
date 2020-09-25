@@ -1,5 +1,5 @@
 import { gql } from "apollo-server-express";
-
+// lastPostSeen is used to track the last post
 const GroupSchema = gql`
 	type Group {
 		id: Int!
@@ -11,10 +11,14 @@ const GroupSchema = gql`
 		members: Int!
 		admin: Int
 	}
+	type UserGroup {
+		group: Group
+		unseenPosts: Int!
+	}
 
 	extend type Query {
 		getGroup(groupId: Int!): Group!
-		getUserGroups: [Group!]!
+		getUserGroups: [UserGroup!]!
 	}
 `;
 

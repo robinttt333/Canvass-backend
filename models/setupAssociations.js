@@ -9,6 +9,7 @@ export default (models) => {
 		Like,
 		Message,
 		Friend,
+		LastPostSeen,
 	} = models;
 	// one to one mapping of user and profile, foreign key will be in profile
 	User.hasOne(Profile, {
@@ -66,14 +67,25 @@ export default (models) => {
 	User.hasMany(Message, {
 		foreignKey: "sender",
 	});
-	//one to many mapping from user and comment
 	User.hasMany(Message, {
 		foreignKey: "receiver",
 	});
+
 	// many to many mapping from user to user
 	User.belongsToMany(User, {
 		through: Friend,
 		as: "friend",
 		foreignKey: "userId",
+	});
+	// many to many mapping from user to group
+	// This mapping keeps track of the last posts of each group
+	// seen by the user
+	User.belongsToMany(Group, {
+		through: LastPostSeen,
+		foreignKey: "userId",
+	});
+	Group.belongsToMany(User, {
+		through: LastPostSeen,
+		foreignKey: "groupId",
 	});
 };

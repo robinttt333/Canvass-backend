@@ -32,6 +32,7 @@ const PostSchema = gql`
 
 	type Subscription {
 		postAdded(groupId: Int!): Post!
+		postAddedToMyGroup: Post!
 	}
 `;
 

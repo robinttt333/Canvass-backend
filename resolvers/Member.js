@@ -31,32 +31,21 @@ const Member = {
 		},
 	},
 	Query: {
-		getGroupMembers: async (_, { groupId }, { models }) => {
+		getGroupMembers: async (_, { groupId }, { sequelize }) => {
 			let res;
 			try {
-				res = await models.Group.findAll({
-					attributes: [
-						"Users.username",
-						"Users.email",
-						"Users.id",
-						"Users.Member.createdAt",
-					],
-					raw: true,
-					where: { id: groupId },
-					include: [
-						{
-							model: models.User,
-							through: {
-								model: models.Member,
-								attributes: [],
-							},
-						},
-					],
-				});
+				res = await sequelize.query(
+					`
+					select "Users"."username", "Users"."email", "Users"."id","Members"."createdAt" from
+					"Users", "Members" where "Users"."id" = "Members"."userId" and
+					"Members"."groupId" = :groupId;
+				`,
+					{ replacements: { groupId } }
+				);
 			} catch (err) {
 				console.log(err);
 			}
-			return res;
+			return res[0];
 		},
 	},
 	Member: {
