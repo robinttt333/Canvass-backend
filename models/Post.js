@@ -11,7 +11,7 @@ const Post = (sequelize) => {
 		//defaultValue: "Group.jpg",
 		//},
 		content: {
-			type: DataTypes.STRING(500),
+			type: DataTypes.TEXT(),
 			allowNull: false,
 		},
 		pinned: {
