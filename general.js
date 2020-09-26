@@ -1,7 +1,12 @@
 import formatError from "./formatError";
 import { randomDescription } from "./constants";
 import pubsub from "./pubsub";
-import { NOTIFICATION_DELETED, NOTIFICATION_ADDED } from "./events";
+import {
+	FRIEND_REQUEST_NOTIFICATION_ADDED,
+	NOTIFICATION_DELETED,
+	NOTIFICATION_ADDED,
+	FRIEND_REQUEST_NOTIFICATION_DELETED,
+} from "./events";
 
 export const makeGroups = async (models) => {
 	try {
@@ -21,7 +26,7 @@ export const makeGroups = async (models) => {
 	}
 };
 
-export const updateLastPostSeen = async ({ models, userId, sequelize, id }) => {
+export const updateLastPostSeen = async ({ models, userId, id }) => {
 	const seen = await models.LastPostSeen.findOne({
 		where: { userId, groupId: id },
 		raw: true,
@@ -82,4 +87,28 @@ export const createCommentNotification = async ({ models, sender, postId }) => {
 		targetId: post.groupId,
 	});
 	pubsub.publish(NOTIFICATION_ADDED, { notificationAdded: notification });
+};
+
+export const createFriendRequestNotification = async ({
+	models,
+	sender,
+	receiver,
+	verb,
+	text,
+}) => {
+	try {
+		const notification = await models.Notification.create({
+			sender,
+			receiver,
+			verb,
+			text,
+			object: "friend request",
+			objectId: sender,
+		});
+		pubsub.publish(FRIEND_REQUEST_NOTIFICATION_ADDED, {
+			friendRequestNotificationAdded: notification,
+		});
+	} catch (err) {
+		console.log(err);
+	}
 };

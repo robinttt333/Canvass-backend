@@ -1,4 +1,5 @@
 import { Op } from "sequelize";
+import { createFriendRequestNotification } from "../general";
 
 const Friend = {
 	// we have combined friend and friend request into a single model
@@ -51,6 +52,13 @@ const Friend = {
 					friendId,
 					status: "pending",
 				});
+				createFriendRequestNotification({
+					models,
+					sender: userId,
+					receiver: friendId,
+					verb: "sent",
+					text: "sent you a",
+				});
 			} catch (err) {
 				console.log(err);
 				return { ok: false };
@@ -68,6 +76,13 @@ const Friend = {
 					{ status: "confirmed" },
 					{ where: { userId, friendId } }
 				);
+				createFriendRequestNotification({
+					models,
+					sender: friendId,
+					receiver: userId,
+					verb: "accepted",
+					text: "accepted your",
+				});
 			} catch (err) {
 				console.log(err);
 				return { ok: false };

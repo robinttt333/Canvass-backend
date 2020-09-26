@@ -1,9 +1,24 @@
 import pubsub from "../pubsub";
+import { Op } from "sequelize";
 import { withFilter } from "apollo-server";
-import { NOTIFICATION_ADDED, NOTIFICATION_DELETED } from "../events";
+import {
+	NOTIFICATION_ADDED,
+	NOTIFICATION_DELETED,
+	FRIEND_REQUEST_NOTIFICATION_ADDED,
+} from "../events";
 
 const Notification = {
 	Subscription: {
+		friendRequestNotificationAdded: {
+			subscribe: withFilter(
+				() => pubsub.asyncIterator(FRIEND_REQUEST_NOTIFICATION_ADDED),
+				async ({ friendRequestNotificationAdded }, _, { user: { userId } }) => {
+					console.log(friendRequestNotificationAdded.receiver === userId);
+					console.log("jsldfjldsjfldsfdsfsdfsdfsfsffsd");
+					return friendRequestNotificationAdded.receiver === userId;
+				}
+			),
+		},
 		notificationDeleted: {
 			subscribe: withFilter(
 				() => pubsub.asyncIterator(NOTIFICATION_DELETED),
@@ -19,6 +34,7 @@ const Notification = {
 			),
 		},
 	},
+
 	Notification: {
 		sender: ({ sender }, _, { models }) =>
 			models.User.findOne({ where: { id: sender } }),
@@ -40,13 +56,33 @@ const Notification = {
 			return null;
 		},
 	},
+
 	Query: {
-		getUnreadNotifications: async (_, __, { models }) => {
-			const userId = 1;
+		getUnreadFriendRequestNotifications: async (
+			_,
+			__,
+			{ models, user: { userId } }
+		) => {
 			return await models.Notification.findAll({
-				where: { receiver: userId, read: false },
+				where: {
+					receiver: userId,
+					read: false,
+					object: "friend request",
+				},
 			});
 		},
+		getUnreadNotifications: async (_, __, { models, user: { userId } }) => {
+			return await models.Notification.findAll({
+				where: {
+					receiver: userId,
+					read: false,
+					object: {
+						[Op.ne]: "friend request",
+					},
+				},
+			});
+		},
+
 		getUnreadNotificationsCount: async (
 			_,
 			__,
@@ -55,12 +91,63 @@ const Notification = {
 			let count = 0;
 			try {
 				count = await models.Notification.count({
-					where: { receiver: userId, read: false },
+					where: {
+						receiver: userId,
+						read: false,
+						object: {
+							[Op.ne]: "friend request",
+						},
+					},
 				});
 			} catch (err) {
 				console.log(err);
 			}
 			return count;
+		},
+	},
+
+	Mutation: {
+		markFriendRequestNotificationsAsRead: (
+			_,
+			__,
+			{ models, user: { userId } }
+		) => {
+			try {
+				models.Notification.update(
+					{ read: true },
+					{
+						where: {
+							receiver: userId,
+							read: false,
+							object: "friend request",
+						},
+					}
+				);
+			} catch (err) {
+				console.log(err);
+				return { ok: false };
+			}
+			return { ok: true };
+		},
+		markNotificationsAsRead: (_, __, { models, user: { userId } }) => {
+			try {
+				models.Notification.update(
+					{ read: true },
+					{
+						where: {
+							receiver: userId,
+							read: false,
+							object: {
+								[Op.ne]: "friend request",
+							},
+						},
+					}
+				);
+			} catch (err) {
+				console.log(err);
+				return { ok: false };
+			}
+			return { ok: true };
 		},
 	},
 };

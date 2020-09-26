@@ -17,14 +17,23 @@ const NotificationSchema = gql`
 		objectId: Int!
 		targetId: Int!
 	}
-
+	type MarkNotificationsAsReadResponse {
+		ok: Boolean!
+	}
+	extend type Mutation {
+		markNotificationsAsRead: MarkNotificationsAsReadResponse!
+		markFriendRequestNotificationsAsRead: MarkNotificationsAsReadResponse!
+	}
 	extend type Query {
 		getUnreadNotificationsCount: Int!
 		getUnreadNotifications: [Notification!]!
+		getUnreadFriendRequestNotifications: [Notification!]!
 	}
 	extend type Subscription {
 		notificationAdded: Notification!
 		notificationDeleted: Notification!
+		friendRequestNotificationAdded: Notification!
+		friendRequestNotificationDeleted: Notification!
 	}
 `;
 
