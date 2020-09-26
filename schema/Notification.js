@@ -10,7 +10,7 @@ const NotificationSchema = gql`
 		verb: String!
 		text: String!
 		object: String!
-		target: String!
+		target: String
 		post: Post
 		comment: Comment
 		group: Group
@@ -28,6 +28,7 @@ const NotificationSchema = gql`
 		getUnreadNotificationsCount: Int!
 		getUnreadNotifications: [Notification!]!
 		getUnreadFriendRequestNotifications: [Notification!]!
+		getAllNotifications: [Notification!]!
 	}
 	extend type Subscription {
 		notificationAdded: Notification!

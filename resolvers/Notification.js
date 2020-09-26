@@ -55,9 +55,12 @@ const Notification = {
 				return models.Group.findOne({ where: { id: targetId } });
 			return null;
 		},
+		createdAt: ({ createdAt }) => new Date(createdAt).toISOString(),
 	},
 
 	Query: {
+		getAllNotifications: (_, __, { models, user: { userId } }) =>
+			models.Notification.findAll({ where: { receiver: userId } }),
 		getUnreadFriendRequestNotifications: async (
 			_,
 			__,
