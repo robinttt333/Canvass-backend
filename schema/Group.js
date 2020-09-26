@@ -9,11 +9,24 @@ const GroupSchema = gql`
 		public: Boolean!
 		description: String!
 		members: Int!
-		admin: Int
+		admin: User
 	}
 	type UserGroup {
 		group: Group
 		unseenPosts: Int!
+	}
+	type CreateGroupResponse {
+		ok: Boolean!
+		id: Int
+		error: Error
+	}
+
+	extend type Mutation {
+		createGroup(
+			name: String!
+			description: String!
+			public: Boolean!
+		): CreateGroupResponse!
 	}
 
 	extend type Query {

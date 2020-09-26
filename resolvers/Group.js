@@ -1,6 +1,6 @@
 import { Op } from "sequelize";
 import { updateLastPostSeen } from "../general";
-
+import formatErrors from "../formatError";
 const ProfileResolvers = {
 	Query: {
 		getGroup: async (
@@ -66,10 +66,39 @@ const ProfileResolvers = {
 		},
 	},
 	Group: {
+		admin: ({ admin }, _, { models }) =>
+			models.User.findOne({ where: { id: admin } }),
 		createdAt: ({ createdAt }) => new Date(createdAt).toISOString(),
 		image: ({ image }) => `http://127.0.0.1:4000/files/${image}`,
 		members: ({ id }, _, { models }) =>
 			models.Member.count({ where: { groupId: id } }),
+	},
+	Mutation: {
+		createGroup: async (
+			_,
+			{ public: status, ...args },
+			{ models, user: { userId }, sequelize }
+		) => {
+			let transaction, group;
+			try {
+				// create group and add admin as a member
+				transaction = await sequelize.transaction();
+				group = (
+					await models.Group.create({
+						public: status,
+						admin: userId,
+						...args,
+					})
+				).get({ plain: true });
+				await models.Member.create({ userId, groupId: group.id });
+				transaction.commit();
+			} catch (err) {
+				transaction.rollback();
+				console.log(err);
+				return { ok: false, error: formatErrors(err) };
+			}
+			return { ok: true, id: group.id };
+		},
 	},
 };
 

@@ -12,7 +12,7 @@ const Group = (sequelize) => {
 			defaultValue: "Group.jpg",
 		},
 		description: {
-			type: DataTypes.STRING(1000),
+			type: DataTypes.TEXT,
 			allowNull: false,
 		},
 		public: {
