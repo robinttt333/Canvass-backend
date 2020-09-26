@@ -1,5 +1,5 @@
 # Canvass
-![Canvass Demo](https://github.com/robinttt333/Canvass-frontend/blob/master/canvass.gif)
+![Canvass Demo](https://github.com/robinttt333/Canvass-backend/blob/master/canvass.gif)
 
 
 Canvass is a social netoworking application built using `react` + `graphql` + `apollo Server` + `sequelize`.Here are some of its features:
