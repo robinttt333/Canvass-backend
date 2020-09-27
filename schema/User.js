@@ -33,6 +33,7 @@ const UserSchema = gql`
 		allUsers: [User!]!
 		getUser(userId: Int!): User!
 		getFriends(userId: Int!): [User!]!
+		getNonGroupMembers(username: String!, groupId: Int!): [User!]!
 	}
 
 	type Mutation {

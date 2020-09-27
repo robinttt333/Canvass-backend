@@ -11,6 +11,12 @@ const MemberSchema = gql`
 	extend type Subscription {
 		groupMemberAdded(groupId: Int!): Member!
 	}
+	type AddGroupMembersResponse {
+		ok: Boolean!
+	}
+	extend type Mutation {
+		addGroupMembers(groupId: Int!, members: [Int!]!): AddGroupMembersResponse!
+	}
 `;
 
 export default MemberSchema;

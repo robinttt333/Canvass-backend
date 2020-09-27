@@ -54,5 +54,21 @@ const Member = {
 		},
 		memberSince: ({ createdAt }) => new Date(createdAt).toISOString(),
 	},
+	Mutation: {
+		addGroupMembers: async (_, { members, groupId }, { models }) => {
+			try {
+				const membersWithGroupId = members.map((userId) => ({
+					userId,
+					groupId,
+				}));
+				await models.Member.bulkCreate(membersWithGroupId);
+			} catch (err) {
+				console.log(err);
+				return { ok: false };
+			}
+
+			return { ok: true };
+		},
+	},
 };
 export default Member;
