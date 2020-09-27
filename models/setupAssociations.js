@@ -11,6 +11,7 @@ export default (models) => {
 		Friend,
 		LastPostSeen,
 		Notification,
+		GroupInvite,
 	} = models;
 	// one to one mapping of user and profile, foreign key will be in profile
 	User.hasOne(Profile, {
@@ -96,5 +97,16 @@ export default (models) => {
 	});
 	User.hasMany(Notification, {
 		foreignKey: "receiver",
+	});
+
+	// Group invite many to many mapping involving user, user and group
+	User.hasMany(GroupInvite, {
+		foreignKey: "sender",
+	});
+	User.hasMany(GroupInvite, {
+		foreignKey: "receiver",
+	});
+	Group.hasMany(GroupInvite, {
+		foreignKey: "groupId",
 	});
 };

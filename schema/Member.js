@@ -7,15 +7,14 @@ const MemberSchema = gql`
 	}
 	extend type Query {
 		getGroupMembers(groupId: Int!): [Member!]!
+		getNonGroupMembers(username: String!, groupId: Int!): [User!]!
+		getNonGroupAndUninvitedMembers(username: String!, groupId: Int!): [User!]!
 	}
 	extend type Subscription {
 		groupMemberAdded(groupId: Int!): Member!
 	}
 	type AddGroupMembersResponse {
 		ok: Boolean!
-	}
-	extend type Mutation {
-		addGroupMembers(groupId: Int!, members: [Int!]!): AddGroupMembersResponse!
 	}
 `;
 

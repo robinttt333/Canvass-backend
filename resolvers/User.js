@@ -43,15 +43,6 @@ const UserResolvers = {
 		},
 	},
 	Query: {
-		getNonGroupMembers: async (_, { username, groupId }, { sequelize }) =>
-			(
-				await sequelize.query(
-					`select * from "Users" where "Users"."username" not in
-					(select username from "Users","Members" where
-					"Members"."userId" = "Users"."id" and "Members"."groupId" = :groupId)`,
-					{ replacements: { groupId } }
-				)
-			)[0],
 		getUser: async (_, { userId }, { models }) =>
 			await models.User.findOne({ where: { id: userId }, raw: true }),
 		getFriends: async (_, { userId }, { sequelize }) => {

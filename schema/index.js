@@ -7,6 +7,7 @@ import MessageSchema from "./Message";
 import MemberSchema from "./Member";
 import FriendSchema from "./Friend";
 import NotificationSchema from "./Notification";
+import GroupInviteSchema from "./GroupInvite";
 import LastPostSeenSchema from "./LastPostSeen";
 
 const schema = [
@@ -20,5 +21,6 @@ const schema = [
 	FriendSchema,
 	LastPostSeenSchema,
 	NotificationSchema,
+	GroupInviteSchema,
 ];
 export default schema;

@@ -31,6 +31,13 @@ const Member = {
 		},
 	},
 	Query: {
+		getNonGroupAndUninvitedMembers: async (_, { groupId }, { sequelize }) =>
+			(
+				await sequelize.query(
+					`select * from "Users" where "Users"."id" not in (select distinct "Members"."userId" from "Members" where "Members"."groupId"=:groupId union select distinct "GroupInvites"."receiver" from "GroupInvites" where "GroupInvites"."groupId"=:groupId)`,
+					{ replacements: { groupId } }
+				)
+			)[0],
 		getGroupMembers: async (_, { groupId }, { sequelize }) => {
 			let res;
 			try {
@@ -53,22 +60,6 @@ const Member = {
 			return parent;
 		},
 		memberSince: ({ createdAt }) => new Date(createdAt).toISOString(),
-	},
-	Mutation: {
-		addGroupMembers: async (_, { members, groupId }, { models }) => {
-			try {
-				const membersWithGroupId = members.map((userId) => ({
-					userId,
-					groupId,
-				}));
-				await models.Member.bulkCreate(membersWithGroupId);
-			} catch (err) {
-				console.log(err);
-				return { ok: false };
-			}
-
-			return { ok: true };
-		},
 	},
 };
 export default Member;

@@ -59,8 +59,21 @@ const Notification = {
 	},
 
 	Query: {
-		getAllNotifications: (_, __, { models, user: { userId } }) =>
-			models.Notification.findAll({ where: { receiver: userId } }),
+		getAllNotifications: async (_, __, { models, user: { userId } }) => {
+			//update all notifications to read
+			await models.Notification.update(
+				{ read: true },
+				{
+					where: {
+						receiver: userId,
+					},
+				}
+			);
+			return models.Notification.findAll({
+				where: { receiver: userId },
+				order: [["createdAt", "DESC"]],
+			});
+		},
 		getUnreadFriendRequestNotifications: async (
 			_,
 			__,
@@ -79,8 +92,9 @@ const Notification = {
 				where: {
 					receiver: userId,
 					read: false,
+					//get all notifications except of invitations and friend requests
 					object: {
-						[Op.ne]: "friend request",
+						[Op.notIn]: ["friend request", "invitation"],
 					},
 				},
 			});

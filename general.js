@@ -5,11 +5,12 @@ import {
 	FRIEND_REQUEST_NOTIFICATION_ADDED,
 	NOTIFICATION_DELETED,
 	NOTIFICATION_ADDED,
-	FRIEND_REQUEST_NOTIFICATION_DELETED,
 } from "./events";
 
 export const makeGroups = async (models) => {
 	try {
+		const group = await models.Group.findOne({ where: { name: "General" } });
+		if (group) return;
 		await models.Group.create({
 			name: "General",
 			description: randomDescription,
@@ -108,6 +109,26 @@ export const createFriendRequestNotification = async ({
 		pubsub.publish(FRIEND_REQUEST_NOTIFICATION_ADDED, {
 			friendRequestNotificationAdded: notification,
 		});
+	} catch (err) {
+		console.log(err);
+	}
+};
+
+export const createGroupInviteNotification = async ({
+	models,
+	members_: members,
+}) => {
+	try {
+		const members_ = members.map(({ sender, receiver, groupId }) => ({
+			sender,
+			receiver,
+			targetId: groupId,
+			verb: "sent",
+			text: "sent you a",
+			object: "invitation",
+			target: "group",
+		}));
+		models.Notification.bulkCreate(members_);
 	} catch (err) {
 		console.log(err);
 	}

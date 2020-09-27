@@ -10,6 +10,7 @@ import Message from "./Message";
 import Friend from "./Friend";
 import LastPostSeen from "./LastPostSeen";
 import Notification from "./Notification";
+import GroupInvite from "./GroupInvite";
 import setupAssociations from "./setupAssociations";
 
 export const sequelize = new Sequelize("canvass", "postgres", "postgres", {
@@ -28,6 +29,7 @@ Message(sequelize);
 Friend(sequelize);
 LastPostSeen(sequelize);
 Notification(sequelize);
+GroupInvite(sequelize);
 
 export const models = sequelize.models;
 setupAssociations(models);

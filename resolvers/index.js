@@ -7,6 +7,7 @@ import Message from "./Message";
 import Member from "./Member";
 import Friend from "./Friend";
 import LastPostSeen from "./LastPostSeen";
+import GroupInvite from "./GroupInvite";
 import Notification from "./Notification";
 const resolvers = [
 	User,
@@ -19,5 +20,6 @@ const resolvers = [
 	Friend,
 	LastPostSeen,
 	Notification,
+	GroupInvite,
 ];
 export default resolvers;

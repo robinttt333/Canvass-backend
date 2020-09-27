@@ -12,7 +12,7 @@ const Notification = (sequelize) => {
 		},
 		object: {
 			type: DataTypes.ENUM,
-			values: ["post", "comment", "friend request"],
+			values: ["post", "comment", "friend request", "invitation"],
 		},
 		text: {
 			type: DataTypes.ENUM,
