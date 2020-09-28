@@ -1,6 +1,9 @@
 import { Op } from "sequelize";
 import { updateLastPostSeen } from "../general";
 import formatErrors from "../formatError";
+import pubsub from "../pubsub";
+import { GROUP_MEMBER_ADDED } from "../events";
+
 const ProfileResolvers = {
 	Query: {
 		getGroup: async (
@@ -72,8 +75,31 @@ const ProfileResolvers = {
 		image: ({ image }) => `http://127.0.0.1:4000/files/${image}`,
 		members: ({ id }, _, { models }) =>
 			models.Member.count({ where: { groupId: id } }),
+		me: async ({ id }, _, { models, user: { userId } }) => {
+			const res = await models.Member.findOne({
+				where: { groupId: id, userId },
+			});
+			if (res) return true;
+			return false;
+		},
 	},
 	Mutation: {
+		joinGroup: async (_, { groupId }, { models, user: { userId } }) => {
+			try {
+				await models.Member.create({ groupId, userId });
+				const user = await models.User.findOne({
+					where: { id: userId },
+					raw: true,
+				});
+				pubsub.publish(GROUP_MEMBER_ADDED, {
+					groupMemberAdded: { ...user, groupId },
+				});
+			} catch (err) {
+				console.log(err);
+				return { ok: false };
+			}
+			return { ok: true };
+		},
 		createGroup: async (
 			_,
 			{ public: status, ...args },

@@ -10,6 +10,7 @@ const GroupInviteSchema = gql`
 	}
 	extend type Query {
 		getGroupInvites: [GroupInvite!]!
+		getGroupInvite(groupId: Int!): GroupInvite
 	}
 	type Response {
 		ok: Boolean

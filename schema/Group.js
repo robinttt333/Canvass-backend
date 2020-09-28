@@ -1,5 +1,5 @@
 import { gql } from "apollo-server-express";
-// lastPostSeen is used to track the last post
+//me is used to check if I am a group member
 const GroupSchema = gql`
 	type Group {
 		id: Int!
@@ -10,6 +10,7 @@ const GroupSchema = gql`
 		description: String!
 		members: Int!
 		admin: User
+		me: Boolean!
 	}
 	type UserGroup {
 		group: Group
@@ -20,13 +21,16 @@ const GroupSchema = gql`
 		id: Int
 		error: Error
 	}
-
+	type JoinGroupResponse {
+		ok: Boolean!
+	}
 	extend type Mutation {
 		createGroup(
 			name: String!
 			description: String!
 			public: Boolean!
 		): CreateGroupResponse!
+		joinGroup(groupId: Int!): JoinGroupResponse!
 	}
 
 	extend type Query {

@@ -14,8 +14,9 @@ const GroupInvite = {
 				await models.GroupInvite.destroy({
 					where: { ...args, receiver: userId },
 				});
-				models.Member.create({
-					where: { userId: args.receiver, groupId: args.groupId },
+				await models.Member.create({
+					userId,
+					groupId: args.groupId,
 				});
 				// roles of sender and receiver have now changed
 				createGroupInviteAcceptedNotification({
@@ -67,6 +68,8 @@ const GroupInvite = {
 	Query: {
 		getGroupInvites: (_, __, { models, user: { userId } }) =>
 			models.GroupInvite.findAll({ where: { receiver: userId } }),
+		getGroupInvite: (_, { groupId }, { models, user: { userId } }) =>
+			models.GroupInvite.findOne({ where: { groupId, receiver: userId } }),
 	},
 	GroupInvite: {
 		sender: ({ sender }, _, { models }) =>
