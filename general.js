@@ -5,6 +5,7 @@ import {
 	FRIEND_REQUEST_NOTIFICATION_ADDED,
 	NOTIFICATION_DELETED,
 	NOTIFICATION_ADDED,
+	GROUP_INVITE_NOTIFICATION_ADDED,
 } from "./events";
 
 export const makeGroups = async (models) => {
@@ -124,11 +125,42 @@ export const createGroupInviteNotification = async ({
 			receiver,
 			targetId: groupId,
 			verb: "sent",
-			text: "sent you a",
+			text: "sent you an",
 			object: "invitation",
 			target: "group",
 		}));
-		models.Notification.bulkCreate(members_);
+		const notifications = await models.Notification.bulkCreate(members_, {
+			returning: true,
+		});
+		notifications.map((notification) => {
+			pubsub.publish(GROUP_INVITE_NOTIFICATION_ADDED, {
+				groupInviteNotificationAdded: notification,
+			});
+		});
+	} catch (err) {
+		console.log(err);
+	}
+};
+
+export const createGroupInviteAcceptedNotification = async ({
+	models,
+	sender,
+	receiver,
+	groupId,
+}) => {
+	try {
+		const notification = await models.Notification.create({
+			sender,
+			receiver,
+			targetId: groupId,
+			verb: "accepted",
+			text: "accepted your",
+			object: "invitation",
+			target: "group",
+		});
+		pubsub.publish(GROUP_INVITE_NOTIFICATION_ADDED, {
+			groupInviteNotificationAdded: notification,
+		});
 	} catch (err) {
 		console.log(err);
 	}

@@ -19,8 +19,8 @@ const GroupInviteSchema = gql`
 			groupId: Int!
 			members: [Int!]!
 		): AddGroupMembersResponse!
-		cancelGroupInvite(sender: Int!, receiver: Int!, groupId: Int!): Response!
-		acceptGroupInvite(sender: Int!, receiver: Int!, groupId: Int!): Response!
+		cancelGroupInvite(sender: Int!, groupId: Int!): Response!
+		acceptGroupInvite(sender: Int!, groupId: Int!): Response!
 	}
 `;
 

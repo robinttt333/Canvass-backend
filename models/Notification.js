@@ -22,6 +22,7 @@ const Notification = (sequelize) => {
 				"posted in",
 				"accepted your",
 				"sent you a",
+				"sent you an",
 			],
 		},
 		target: {

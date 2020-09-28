@@ -23,11 +23,13 @@ const NotificationSchema = gql`
 	extend type Mutation {
 		markNotificationsAsRead: MarkNotificationsAsReadResponse!
 		markFriendRequestNotificationsAsRead: MarkNotificationsAsReadResponse!
+		markGroupInviteNotificationAsRead: MarkNotificationsAsReadResponse!
 	}
 	extend type Query {
 		getUnreadNotificationsCount: Int!
 		getUnreadNotifications: [Notification!]!
 		getUnreadFriendRequestNotifications: [Notification!]!
+		getUnreadGroupInviteNotifications: [Notification!]!
 		getAllNotifications: [Notification!]!
 	}
 	extend type Subscription {
@@ -35,6 +37,7 @@ const NotificationSchema = gql`
 		notificationDeleted: Notification!
 		friendRequestNotificationAdded: Notification!
 		friendRequestNotificationDeleted: Notification!
+		groupInviteNotificationAdded: Notification!
 	}
 `;
 

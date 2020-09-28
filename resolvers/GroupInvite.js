@@ -1,13 +1,28 @@
 import { createGroupInviteNotification } from "../general";
+import { createGroupInviteAcceptedNotification } from "../general";
+
 const GroupInvite = {
 	Mutation: {
-		acceptGroupInvite: async (_, args, { sequelize, models }) => {
+		acceptGroupInvite: async (
+			_,
+			args,
+			{ sequelize, models, user: { userId } }
+		) => {
 			let transaction;
 			try {
 				transaction = await sequelize.transaction();
-				await models.GroupInvite.destroy({ where: { ...args } });
-				models.Membes.create({
+				await models.GroupInvite.destroy({
+					where: { ...args, receiver: userId },
+				});
+				models.Member.create({
 					where: { userId: args.receiver, groupId: args.groupId },
+				});
+				// roles of sender and receiver have now changed
+				createGroupInviteAcceptedNotification({
+					models,
+					sender: userId,
+					receiver: args.sender,
+					groupId: args.groupId,
 				});
 				transaction.commit();
 			} catch (err) {
@@ -17,9 +32,11 @@ const GroupInvite = {
 			}
 			return { ok: true };
 		},
-		cancelGroupInvite: async (_, args, { models }) => {
+		cancelGroupInvite: async (_, args, { models, user: { userId } }) => {
 			try {
-				await models.GroupInvite.destroy({ where: { ...args } });
+				await models.GroupInvite.destroy({
+					where: { ...args, receiver: userId },
+				});
 			} catch (err) {
 				console.log(err);
 				return { ok: false };

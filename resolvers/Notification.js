@@ -5,16 +5,23 @@ import {
 	NOTIFICATION_ADDED,
 	NOTIFICATION_DELETED,
 	FRIEND_REQUEST_NOTIFICATION_ADDED,
+	GROUP_INVITE_NOTIFICATION_ADDED,
 } from "../events";
 
 const Notification = {
 	Subscription: {
+		groupInviteNotificationAdded: {
+			subscribe: withFilter(
+				() => pubsub.asyncIterator(GROUP_INVITE_NOTIFICATION_ADDED),
+				async ({ groupInviteNotificationAdded }, _, { user: { userId } }) => {
+					return groupInviteNotificationAdded.receiver === userId;
+				}
+			),
+		},
 		friendRequestNotificationAdded: {
 			subscribe: withFilter(
 				() => pubsub.asyncIterator(FRIEND_REQUEST_NOTIFICATION_ADDED),
 				async ({ friendRequestNotificationAdded }, _, { user: { userId } }) => {
-					console.log(friendRequestNotificationAdded.receiver === userId);
-					console.log("jsldfjldsjfldsfdsfsdfsdfsfsffsd");
 					return friendRequestNotificationAdded.receiver === userId;
 				}
 			),
@@ -74,6 +81,19 @@ const Notification = {
 				order: [["createdAt", "DESC"]],
 			});
 		},
+		getUnreadGroupInviteNotifications: async (
+			_,
+			__,
+			{ models, user: { userId } }
+		) => {
+			return await models.Notification.findAll({
+				where: {
+					receiver: userId,
+					read: false,
+					object: "invitation",
+				},
+			});
+		},
 		getUnreadFriendRequestNotifications: async (
 			_,
 			__,
@@ -124,6 +144,28 @@ const Notification = {
 	},
 
 	Mutation: {
+		markGroupInviteNotificationAsRead: (
+			_,
+			__,
+			{ models, user: { userId } }
+		) => {
+			try {
+				models.Notification.update(
+					{ read: true },
+					{
+						where: {
+							receiver: userId,
+							read: false,
+							object: "invitation",
+						},
+					}
+				);
+			} catch (err) {
+				console.log(err);
+				return { ok: false };
+			}
+			return { ok: true };
+		},
 		markFriendRequestNotificationsAsRead: (
 			_,
 			__,
