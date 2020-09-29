@@ -42,13 +42,13 @@ const Message = {
 					sender: userId,
 				});
 				pubsub.publish(MESSAGE_ADDED, { messageAdded: message });
-				const user = await models.User.findOne({
-					where: { id: userId },
-					raw: true,
-				});
-				pubsub.publish(CHAT_MEMBER_ADDED, {
-					chatMemberAdded: { ...user, receiver: args.receiver },
-				});
+				//const user = await models.User.findOne({
+				//where: { id: userId },
+				//raw: true,
+				//});
+				//pubsub.publish(CHAT_MEMBER_ADDED, {
+				//chatMemberAdded: { ...user, receiver: args.receiver },
+				//});
 			} catch (err) {
 				console.log(err);
 				return { ok: false, error: formatErrors(err) };
