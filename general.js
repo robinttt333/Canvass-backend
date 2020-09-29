@@ -6,6 +6,9 @@ import {
 	NOTIFICATION_DELETED,
 	NOTIFICATION_ADDED,
 	GROUP_INVITE_NOTIFICATION_ADDED,
+	LIKE_DELETED,
+	LIKE_ADDED,
+	POST_ADDED,
 } from "./events";
 
 export const makeGroups = async (models) => {
@@ -87,6 +90,8 @@ export const updateLastPostSeen = async ({ models, userId, id }) => {
 
 export const deleteLikeNotification = async ({ models, sender, postId }) => {
 	const post = await models.Post.findOne({ where: { id: postId }, raw: true });
+	pubsub.publish(LIKE_DELETED, { likeDeleted: post });
+	pubsub.publish(POST_ADDED, { postAdded: post });
 	if (post.author === sender) return;
 	const notification = await models.Notification.findOne({
 		where: { sender, receiver: post.author, objectId: post.id, verb: "liked" },
@@ -99,6 +104,8 @@ export const deleteLikeNotification = async ({ models, sender, postId }) => {
 
 export const createLikeNotification = async ({ models, sender, postId }) => {
 	const post = await models.Post.findOne({ where: { id: postId }, raw: true });
+	pubsub.publish(LIKE_ADDED, { likeAdded: post });
+	pubsub.publish(POST_ADDED, { postAdded: post });
 	if (post.author === sender) return;
 	const notification = await models.Notification.create({
 		sender,

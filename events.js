@@ -1,5 +1,7 @@
 export const POST_ADDED = "POST_ADDED";
 export const POST_ADDED_TO_MY_GROUP = "POST_ADDED_TO_MY_GROUP";
+export const LIKE_DELETED = "LIKE_DELETED";
+export const LIKE_ADDED = "LIKE_ADDED";
 export const COMMENT_ADDED = "COMMENT_ADDED";
 export const MESSAGE_ADDED = "MESSAGE_ADDED";
 export const TOGGLE_USER_JOINED = "TOGGLE_USER_JOINED";

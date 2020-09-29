@@ -23,6 +23,7 @@ const PostSchema = gql`
 
 	extend type Query {
 		getPosts(groupId: Int!): [Post!]!
+		getPost(postId: Int!): Post!
 	}
 
 	extend type Mutation {
@@ -32,6 +33,8 @@ const PostSchema = gql`
 
 	type Subscription {
 		postAdded(groupId: Int!): Post!
+		likeAdded(postId: Int!): Post!
+		likeDeleted(postId: Int!): Post!
 		postAddedToMyGroup: Post!
 	}
 `;

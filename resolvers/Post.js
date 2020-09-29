@@ -1,11 +1,61 @@
 import formatErrors from "../formatError";
 import pubsub from "../pubsub";
-import { POST_ADDED_TO_MY_GROUP, POST_ADDED } from "../events";
+import {
+	POST_ADDED_TO_MY_GROUP,
+	POST_ADDED,
+	LIKE_ADDED,
+	LIKE_DELETED,
+} from "../events";
 import { withFilter } from "apollo-server";
 import { deleteLikeNotification, createLikeNotification } from "../general";
 
 const ProfileResolvers = {
 	Subscription: {
+		likeAdded: {
+			subscribe: withFilter(
+				() => pubsub.asyncIterator(LIKE_ADDED),
+				async ({ likeAdded }, { postId }, { user: { userId }, models }) => {
+					// check if current user is a member of group
+					let res;
+					console.log("sdfsdfsdfsdfdsfdsfsdfsdfsdfsdfsdf");
+					console.log(likeAdded);
+					console.log(postId);
+					try {
+						res = await models.Member.findOne({
+							where: { userId, groupId: likeAdded.groupId },
+							raw: true,
+						});
+					} catch (err) {
+						console.log(err);
+						return false;
+					}
+					if (!res) return false;
+					if (likeAdded.id !== postId) return false;
+					return true;
+				}
+			),
+		},
+		likeDeleted: {
+			subscribe: withFilter(
+				() => pubsub.asyncIterator(LIKE_DELETED),
+				async ({ likeDeleted }, { postId }, { user: { userId }, models }) => {
+					// check if current user is a member of group
+					let res;
+					try {
+						res = await models.Member.findOne({
+							where: { userId, groupId: likeDeleted.groupId },
+							raw: true,
+						});
+					} catch (err) {
+						console.log(err);
+						return false;
+					}
+					if (!res) return false;
+					if (likeDeleted.id !== postId) return false;
+					return true;
+				}
+			),
+		},
 		postAdded: {
 			subscribe: withFilter(
 				() => pubsub.asyncIterator(POST_ADDED),
@@ -66,6 +116,10 @@ const ProfileResolvers = {
 			models.Post.findAll({
 				where: { groupId },
 				order: [["createdAt", "DESC"]],
+			}),
+		getPost: (_, { postId }, { models }) =>
+			models.Post.findOne({
+				where: { id: postId },
 			}),
 	},
 	Mutation: {
