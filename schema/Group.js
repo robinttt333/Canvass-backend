@@ -11,6 +11,7 @@ const GroupSchema = gql`
 		members: Int!
 		admin: User
 		me: Boolean!
+		tags: [Tag!]!
 	}
 	type UserGroup {
 		group: Group
@@ -29,6 +30,7 @@ const GroupSchema = gql`
 			name: String!
 			description: String!
 			public: Boolean!
+			tags: [String!]!
 		): CreateGroupResponse!
 		joinGroup(groupId: Int!): JoinGroupResponse!
 	}

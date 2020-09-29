@@ -12,6 +12,8 @@ export default (models) => {
 		LastPostSeen,
 		Notification,
 		GroupInvite,
+		Tag,
+		GroupTag,
 	} = models;
 	// one to one mapping of user and profile, foreign key will be in profile
 	User.hasOne(Profile, {
@@ -108,5 +110,14 @@ export default (models) => {
 	});
 	Group.hasMany(GroupInvite, {
 		foreignKey: "groupId",
+	});
+
+	Group.belongsToMany(Tag, {
+		foreignKey: "groupId",
+		through: GroupTag,
+	});
+	Tag.belongsToMany(Group, {
+		foreignKey: "tagId",
+		through: GroupTag,
 	});
 };

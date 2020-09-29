@@ -6,11 +6,8 @@ import { GROUP_MEMBER_ADDED } from "../events";
 
 const ProfileResolvers = {
 	Query: {
-		getGroup: async (
-			_,
-			{ groupId: id },
-			{ sequelize, user: { userId }, models }
-		) => {
+		getGroup: async (_, { groupId: id }, { sequelize, models }) => {
+			const userId = 1;
 			const group = await models.Group.findOne({ where: { id }, raw: true });
 			updateLastPostSeen({ userId, sequelize, models, id });
 			return group;
@@ -82,6 +79,17 @@ const ProfileResolvers = {
 			if (res) return true;
 			return false;
 		},
+		tags: async ({ id }, _, { models }) => {
+			const res = await models.Tag.findAll({
+				include: {
+					model: models.Group,
+					where: { id },
+					through: models.GroupTag,
+				},
+			});
+			console.log(res);
+			return res;
+		},
 	},
 	Mutation: {
 		joinGroup: async (_, { groupId }, { models, user: { userId } }) => {
@@ -105,7 +113,13 @@ const ProfileResolvers = {
 			{ public: status, ...args },
 			{ models, user: { userId }, sequelize }
 		) => {
-			let transaction, group;
+			let transaction, group, tags;
+			tags = args.tags.map((tag) => ({ value: tag }));
+			try {
+				models.Tag.bulkCreate(tags);
+				//eslint-disable-next-line
+			} catch (err) {}
+
 			try {
 				// create group and add admin as a member
 				transaction = await sequelize.transaction();
@@ -113,9 +127,19 @@ const ProfileResolvers = {
 					await models.Group.create({
 						public: status,
 						admin: userId,
-						...args,
+						name: args.name,
+						description: args.description,
 					})
 				).get({ plain: true });
+
+				// create non existing tags and also add the corresponding association
+				tags.forEach(async ({ value }) => {
+					let tag = await models.Tag.findOne({ where: { value }, raw: true });
+					if (!tag)
+						tag = (await models.Tag.create({ value })).get({ plain: true });
+					models.GroupTag.create({ groupId: group.id, tagId: tag.id });
+				});
+
 				await models.Member.create({ userId, groupId: group.id });
 				transaction.commit();
 			} catch (err) {

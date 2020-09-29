@@ -11,6 +11,8 @@ import Friend from "./Friend";
 import LastPostSeen from "./LastPostSeen";
 import Notification from "./Notification";
 import GroupInvite from "./GroupInvite";
+import Tag from "./Tag";
+import GroupTag from "./GroupTag";
 import setupAssociations from "./setupAssociations";
 
 export const sequelize = new Sequelize("canvass", "postgres", "postgres", {
@@ -30,6 +32,8 @@ Friend(sequelize);
 LastPostSeen(sequelize);
 Notification(sequelize);
 GroupInvite(sequelize);
+Tag(sequelize);
+GroupTag(sequelize);
 
 export const models = sequelize.models;
 setupAssociations(models);

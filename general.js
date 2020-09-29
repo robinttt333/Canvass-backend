@@ -12,6 +12,33 @@ export const makeGroups = async (models) => {
 	try {
 		const group = await models.Group.findOne({ where: { name: "General" } });
 		if (group) return;
+
+		const tags = [
+			{ value: "general" },
+			{ value: "random" },
+			{ value: "canvass" },
+			{ value: "General" },
+			{ value: "Random" },
+			{ value: "admin" },
+			{ value: "default" },
+		];
+		const generalTags = [
+			{ value: "general" },
+			{ value: "canvass" },
+			{ value: "General" },
+			{ value: "admin" },
+			{ value: "default" },
+		];
+
+		const randomTags = [
+			{ value: "random" },
+			{ value: "canvass" },
+			{ value: "Random" },
+			{ value: "admin" },
+			{ value: "default" },
+		];
+		models.Tag.bulkCreate(tags);
+
 		await models.Group.create({
 			name: "General",
 			description: randomDescription,
@@ -19,6 +46,16 @@ export const makeGroups = async (models) => {
 		await models.Group.create({
 			name: "Random",
 			description: randomDescription,
+		});
+
+		generalTags.forEach(async ({ value }) => {
+			let tag = await models.Tag.findOne({ where: { value }, raw: true });
+			models.GroupTag.create({ groupId: 1, tagId: tag.id });
+		});
+
+		randomTags.forEach(async ({ value }) => {
+			let tag = await models.Tag.findOne({ where: { value }, raw: true });
+			models.GroupTag.create({ groupId: 2, tagId: tag.id });
 		});
 	} catch (err) {
 		console.log(
