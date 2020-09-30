@@ -20,7 +20,7 @@ const MessageSchema = gql`
 	}
 
 	extend type Query {
-		getChat(userId: Int!): [Message!]!
+		getChat(userId: Int!, offset: Int!): [Message!]!
 		getChatMembers: [ChatMember!]!
 		getUnreadMessagesCount: Int!
 	}

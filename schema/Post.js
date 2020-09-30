@@ -22,7 +22,7 @@ const PostSchema = gql`
 	}
 
 	extend type Query {
-		getPosts(groupId: Int!): [Post!]!
+		getPosts(groupId: Int!, offset: Int!): [Post!]!
 		getPost(postId: Int!): Post!
 	}
 

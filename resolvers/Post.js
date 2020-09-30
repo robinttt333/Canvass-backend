@@ -112,10 +112,12 @@ const ProfileResolvers = {
 			(await models.Like.findOne({ where: { userId, postId: id } })) !== null,
 	},
 	Query: {
-		getPosts: (_, { groupId }, { models }) =>
+		getPosts: (_, { groupId, offset }, { models }) =>
 			models.Post.findAll({
 				where: { groupId },
 				order: [["createdAt", "DESC"]],
+				offset,
+				limit: 20,
 			}),
 		getPost: (_, { postId }, { models }) =>
 			models.Post.findOne({

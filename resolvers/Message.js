@@ -125,7 +125,7 @@ const Message = {
 		},
 		getChat: async (
 			_,
-			{ userId },
+			{ offset, userId },
 			{ sequelize, models, user: { userId: me } }
 		) => {
 			await sequelize.query(
@@ -139,7 +139,9 @@ const Message = {
 			//sender=user and receiver=me or sender=me and receiver=user
 			const res = await models.Message.findAll({
 				raw: true,
+				limit: 20,
 				order: [["createdAt", "ASC"]],
+				offset,
 				where: {
 					[Op.or]: [
 						{ [Op.and]: [{ sender: me }, { receiver: userId }] },
