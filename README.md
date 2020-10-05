@@ -37,13 +37,6 @@ npm start
 and you will have a react app running if the repo is `Canvass-frontend`
 or apollo server if it is `Canvass-backend`.
 
-### Todos
-This is an ongoing project so there are many issues with it
- - fixing navigation
- - ability to create groups
- - adding markdown facility to create new posts
- - realtime notifications
-
 License
 ----
 
